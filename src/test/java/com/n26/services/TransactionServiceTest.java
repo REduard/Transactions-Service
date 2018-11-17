@@ -9,6 +9,10 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.LocalDateTime;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -19,6 +23,10 @@ public class TransactionServiceTest {
 
     private TransactionService transactionService;
 
+
+    private final BigDecimal AMOUNT = BigDecimal.valueOf(1223.45);
+    private final LocalDateTime TIMESTAMP = LocalDateTime.now(Clock.systemUTC());
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -28,7 +36,11 @@ public class TransactionServiceTest {
     @Test
     public void addTransaction() {
         //when
-        transactionService.addTransaction(new TransactionDTO());
+        //given
+        TransactionDTO transactionDTO = new TransactionDTO();
+        transactionDTO.setAmount(AMOUNT);
+        transactionDTO.setTimestamp(TIMESTAMP);
+        transactionService.addTransaction(transactionDTO);
 
         //then
         verify(transactionRepository, times(1)).save(any(Transaction.class));

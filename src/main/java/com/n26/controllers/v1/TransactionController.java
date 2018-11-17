@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(TransactionController.BASE_URL)
 public class TransactionController {
-    public static final String BASE_URL = "/api/v1/transaction";
+    public static final String BASE_URL = "/transactions";
 
     private final TransactionService transactionService;
 

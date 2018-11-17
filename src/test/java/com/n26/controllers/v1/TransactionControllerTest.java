@@ -9,11 +9,12 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.http.MediaType;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 
 import java.math.BigDecimal;
+import java.time.Clock;
 import java.time.LocalDateTime;
 
 import static com.n26.controllers.v1.AbstractRestControllerTest.asJsonString;
@@ -46,19 +47,69 @@ public class TransactionControllerTest {
     }
 
     @Test
-    public void addTransaction() throws Exception {
+    public void testAddValidTransaction() throws Exception {
         //given
         TransactionDTO transactionDTO = new TransactionDTO();
         transactionDTO.setAmount(AMOUNT);
         transactionDTO.setTimestamp(TIMESTAMP);
 
         //when
-        ResultActions resultActions = mockMvc.perform(post(TransactionController.BASE_URL)
+        mockMvc.perform(post(TransactionController.BASE_URL)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(asJsonString(transactionDTO)));
-//                .andExpect(status().isCreated());
-        System.out.println(resultActions.andReturn());
+                .content(asJsonString(transactionDTO)))
+                .andExpect(status().isCreated());
+
         verify(transactionService, times(1)).addTransaction(any(TransactionDTO.class));
+        verifyNoMoreInteractions(transactionService);
+    }
+
+    @Test
+    public void testAddTransactionWithFutureTimestamp() throws Exception {
+        //given
+        TransactionDTO transactionDTO = new TransactionDTO();
+        transactionDTO.setAmount(AMOUNT);
+        transactionDTO.setTimestamp(LocalDateTime.now(Clock.systemUTC()).plusHours(2));
+        doThrow(new HttpMessageNotReadableException("")).when(transactionService).addTransaction(transactionDTO);
+
+        //when
+        mockMvc.perform(post(TransactionController.BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(asJsonString(transactionDTO)))
+                .andExpect(status().isUnprocessableEntity());
+
+        verify(transactionService, times(1)).addTransaction(any(TransactionDTO.class));
+        verifyNoMoreInteractions(transactionService);
+    }
+
+    @Test
+    public void testAddTransactionWithBadParams() throws Exception {
+        //given
+        TransactionDTO transactionDTO = new TransactionDTO();
+        transactionDTO.setAmount(AMOUNT);
+        transactionDTO.setTimestamp(LocalDateTime.now(Clock.systemUTC()).plusHours(2));
+
+        //when
+        mockMvc.perform(post(TransactionController.BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"amount\":\"2344\",\"timestamp\":\"343434\"}"))
+                .andExpect(status().isUnprocessableEntity());
+
+        verifyNoMoreInteractions(transactionService);
+    }
+
+    @Test
+    public void testAddTransactionWithBadJson() throws Exception {
+        //given
+        TransactionDTO transactionDTO = new TransactionDTO();
+        transactionDTO.setAmount(AMOUNT);
+        transactionDTO.setTimestamp(LocalDateTime.now(Clock.systemUTC()).plusHours(2));
+
+        //when
+        mockMvc.perform(post(TransactionController.BASE_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"amount\":\"2344\",\"timestamp\":\"2018-11-17T16:44:12.244Z\",,,}"))
+                .andExpect(status().isBadRequest());
+
         verifyNoMoreInteractions(transactionService);
     }
 

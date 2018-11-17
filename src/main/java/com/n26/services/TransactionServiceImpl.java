@@ -4,7 +4,11 @@ import com.n26.api.v1.mappers.TransactionMapper;
 import com.n26.api.v1.model.TransactionDTO;
 import com.n26.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
+
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -20,6 +24,9 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void addTransaction(TransactionDTO transactionDTO) {
+        if (transactionDTO.getTimestamp().isAfter(LocalDateTime.now(Clock.systemUTC()))) {
+            throw new HttpMessageNotReadableException("");
+        }
         transactionRepository.save(transactionMapper.transactionDTOtoTransaction(transactionDTO));
     }
 

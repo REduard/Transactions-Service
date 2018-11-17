@@ -56,7 +56,9 @@ public class StatisticsServiceImpl implements StatisticsService {
     }
 
     private BigDecimal getAvg(BigDecimal sum, BigDecimal count) {
-        return sum.divide(count, BigDecimal.ROUND_HALF_UP);
+        BigDecimal avg = sum;
+        avg = avg.setScale(2, BigDecimal.ROUND_HALF_UP);
+        return avg.divide(count, BigDecimal.ROUND_HALF_UP);
     }
 
     private BigDecimal getMax(List<Transaction> transactions) {

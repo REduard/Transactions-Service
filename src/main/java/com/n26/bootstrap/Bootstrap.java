@@ -36,8 +36,8 @@ public class Bootstrap implements CommandLineRunner {
         transaction2.setTimestamp(LocalDateTime.now(Clock.systemUTC()));
         transaction3.setTimestamp(LocalDateTime.now(Clock.systemUTC()));
 
-        transactionRepository.save(transaction);
-        transactionRepository.save(transaction2);
-        transactionRepository.save(transaction3);
+//        transactionRepository.save(transaction);
+//        transactionRepository.save(transaction2);
+//        transactionRepository.save(transaction3);
     }
 }

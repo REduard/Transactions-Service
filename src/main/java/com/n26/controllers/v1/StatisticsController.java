@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping(StatisticsController.BASE_URL)
 public class StatisticsController {
-    public static final String BASE_URL = "/api/v1/statistics";
+    public static final String BASE_URL = "/statistics";
 
     private final StatisticsService statisticsService;
 
