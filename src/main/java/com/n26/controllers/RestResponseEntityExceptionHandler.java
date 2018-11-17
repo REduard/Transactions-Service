@@ -1,7 +1,7 @@
 package com.n26.controllers;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.n26.services.exceptions.NoDataForStatistics;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
+import com.n26.services.exceptions.TooOldTransactionException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,25 +14,20 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 @ControllerAdvice
 public class RestResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler({NoDataForStatistics.class})
-    public ResponseEntity<Object> handleNoDataForStatisticsException(Exception exception) {
-        String defaultMessage = "No transactions fresh transactions detected to create statistics";
+    @ExceptionHandler({TooOldTransactionException.class})
+    public ResponseEntity<Object> handleTooOldTransactionException() {
 
-        if (exception.getMessage() != null) {
-            defaultMessage = exception.getMessage();
-        }
-
-        return new ResponseEntity<>(defaultMessage, new HttpHeaders(), HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.NO_CONTENT);
     }
 
     @Override
     protected ResponseEntity<Object> handleHttpMessageNotReadable(
             HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatus status, WebRequest request) {
-
-        if (ex.getCause() instanceof JsonParseException) {
-            return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.BAD_REQUEST);
+        Throwable cause = ex.getCause();
+        if (cause instanceof InvalidFormatException || cause == null) {
+            return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
         }
 
-        return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.UNPROCESSABLE_ENTITY);
+        return new ResponseEntity<>(null, new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 }

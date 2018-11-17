@@ -3,10 +3,12 @@ package com.n26.api.v1.model;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.n26.util.StatisticsSerializer;
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
 
 @Data
+@Accessors(chain = true)
 public class StatisticsDTO {
 
     @JsonSerialize(using = StatisticsSerializer.class)
