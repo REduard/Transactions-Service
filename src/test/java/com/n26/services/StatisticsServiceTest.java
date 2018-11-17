@@ -8,6 +8,9 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
@@ -20,6 +23,12 @@ public class StatisticsServiceTest {
 
     private StatisticsService statisticsService;
 
+    private final BigDecimal AMOUNT = BigDecimal.valueOf(1223.45);
+    private final LocalDateTime TIMESTAMP = LocalDateTime.now(Clock.systemUTC());
+    private final BigDecimal AMOUNT2 = BigDecimal.valueOf(12563.45);
+    private final LocalDateTime TIMESTAMP2 = LocalDateTime.now(Clock.systemUTC());
+
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -29,7 +38,14 @@ public class StatisticsServiceTest {
     @Test
     public void getStatistics() {
         //given
-        when(transactionRepository.getLatestTransactions()).thenReturn(Arrays.asList(new Transaction(), new Transaction()));
+        Transaction transaction = new Transaction();
+        transaction.setAmount(AMOUNT);
+        transaction.setTimestamp(TIMESTAMP);
+
+        Transaction transaction2 = new Transaction();
+        transaction2.setAmount(AMOUNT2);
+        transaction2.setTimestamp(TIMESTAMP2.minusSeconds(61));
+        when(transactionRepository.getLatestTransactions()).thenReturn(Arrays.asList(transaction, transaction2));
 
         //when
         StatisticsDTO statisticsDTO = statisticsService.getStatistics();
