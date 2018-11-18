@@ -29,12 +29,12 @@ public class SwaggerConfig {
 
     private ApiInfo metaData() {
 
-        Contact contact = new Contact("Eduard RAscutoi", "https://www.linkedin.com/in/eduard-rascutoi/",
+        Contact contact = new Contact("Eduard Rascutoi", "https://n26.com/en-eu/",
                 "rascutoi.eduard@gmail.com");
 
         return new ApiInfo(
                 "N26",
-                " Backend Regular Engineer Test",
+                "Transactions service",
                 "1.0",
                 "Terms of Service: ...",
                 contact,

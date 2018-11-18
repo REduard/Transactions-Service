@@ -2,17 +2,22 @@ package com.n26.services;
 
 import com.n26.api.v1.mappers.TransactionMapper;
 import com.n26.api.v1.model.TransactionDTO;
+import com.n26.domain.Transaction;
 import com.n26.repository.TransactionRepository;
+import com.n26.services.exceptions.InvalidTransactionException;
 import com.n26.services.exceptions.TooOldTransactionException;
+import com.n26.services.exceptions.TransactionHasFutureDateException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.stereotype.Service;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 
-import static com.n26.util.TransactionsConstants.SECONDS_IN_THE_PAST;
+import static com.n26.util.TransactionUtil.isTransactionValid;
+import static com.n26.util.TransactionsConstants.*;
 
+@Slf4j
 @Service
 public class TransactionServiceImpl implements TransactionService {
 
@@ -27,13 +32,26 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void addTransaction(TransactionDTO transactionDTO) {
-        if (transactionDTO.getTimestamp().isAfter(LocalDateTime.now(Clock.systemUTC()))) {
-            throw new HttpMessageNotReadableException("");
+        Transaction transaction;
+
+        if (transactionDTO == null) {
+            throw new InvalidTransactionException(NULL_TRANSACTION_MESSAGE);
         }
-        if (transactionDTO.getTimestamp().isBefore(LocalDateTime.now(Clock.systemUTC()).minusSeconds(SECONDS_IN_THE_PAST))) {
-            throw new TooOldTransactionException();
+
+        transaction = transactionMapper.transactionDTOtoTransaction(transactionDTO);
+
+        if (!isTransactionValid(transaction)) {
+            throw new InvalidTransactionException(NULL_TRANSACTION_PARAMS_MESSAGE);
         }
-        transactionRepository.save(transactionMapper.transactionDTOtoTransaction(transactionDTO));
+
+        if (transaction.getTimestamp().isAfter(LocalDateTime.now(Clock.systemUTC()))) {
+            throw new TransactionHasFutureDateException(TRANSACTION_HAS_FUTURE_TIMESTAMP_MESSAGE);
+        }
+
+        if (transaction.getTimestamp().isBefore(LocalDateTime.now(Clock.systemUTC()).minusSeconds(SECONDS_IN_THE_PAST))) {
+            throw new TooOldTransactionException(TRANSACTION_IS_TOO_OLD_MESSAGE);
+        }
+        transactionRepository.save(transaction);
     }
 
     @Override

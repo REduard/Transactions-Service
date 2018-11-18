@@ -30,10 +30,10 @@ public class StatisticsControllerTest {
 
     MockMvc mockMvc;
 
-    final BigDecimal SUM = BigDecimal.valueOf(10.345);
-    final BigDecimal AVG = BigDecimal.valueOf(12.345);
-    final BigDecimal MAX = BigDecimal.valueOf(11.345);
-    final BigDecimal MIN = BigDecimal.valueOf(17.345);
+    final BigDecimal SUM = BigDecimal.valueOf(10.34);
+    final BigDecimal AVG = BigDecimal.valueOf(12.34);
+    final BigDecimal MAX = BigDecimal.valueOf(11.34);
+    final BigDecimal MIN = BigDecimal.valueOf(17.34);
     final Integer COUNT = 10;
 
     @Before
@@ -61,10 +61,10 @@ public class StatisticsControllerTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
-                .andExpect(jsonPath("$.sum", equalTo(SUM.setScale(2, BigDecimal.ROUND_HALF_UP).toString())))
-                .andExpect(jsonPath("$.avg", equalTo(AVG.setScale(2, BigDecimal.ROUND_HALF_UP).toString())))
-                .andExpect(jsonPath("$.max", equalTo(MAX.setScale(2, BigDecimal.ROUND_HALF_UP).toString())))
-                .andExpect(jsonPath("$.min", equalTo(MIN.setScale(2, BigDecimal.ROUND_HALF_UP).toString())))
+                .andExpect(jsonPath("$.sum", equalTo(SUM.toString())))
+                .andExpect(jsonPath("$.avg", equalTo(AVG.toString())))
+                .andExpect(jsonPath("$.max", equalTo(MAX.toString())))
+                .andExpect(jsonPath("$.min", equalTo(MIN.toString())))
                 .andExpect(jsonPath("$.count", equalTo(COUNT)));
 
         verify(statisticsService, times(1)).getStatistics();

@@ -7,6 +7,9 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import java.io.IOException;
 import java.math.BigDecimal;
 
+/**
+ * Custom serializer to set BigDecimal scale to 2
+ */
 public class StatisticsSerializer extends JsonSerializer<BigDecimal> {
 
     @Override

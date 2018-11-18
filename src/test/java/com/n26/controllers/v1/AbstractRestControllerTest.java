@@ -2,7 +2,7 @@ package com.n26.controllers.v1;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-public class AbstractRestControllerTest {
+public interface AbstractRestControllerTest {
 
     static String asJsonString(final Object object) {
         try {

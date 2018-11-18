@@ -9,7 +9,8 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
-import static com.n26.util.StatisticsUtil.*;
+import static com.n26.api.v1.model.StatisticsDTO.getEmptyStatistics;
+import static com.n26.util.TransactionUtil.*;
 
 @Service
 public class StatisticsServiceImpl implements StatisticsService {
@@ -27,8 +28,8 @@ public class StatisticsServiceImpl implements StatisticsService {
         StatisticsDTO statisticsDTO = new StatisticsDTO();
         List<Transaction> latestTransactions = transactionRepository.getLatestTransactions();
 
-        if (latestTransactions.size() == 0) {
-            return createEmptyStatistics();
+        if (latestTransactions == null || latestTransactions.size() == 0) {
+            return getEmptyStatistics();
         }
 
         Integer count = latestTransactions.size();
@@ -44,13 +45,5 @@ public class StatisticsServiceImpl implements StatisticsService {
                 .setCount(latestTransactions.size());
 
         return statisticsDTO;
-    }
-
-    private StatisticsDTO createEmptyStatistics() {
-        return new StatisticsDTO().setSum(BigDecimal.ZERO)
-                .setAvg(BigDecimal.ZERO)
-                .setMax(BigDecimal.ZERO)
-                .setMin(BigDecimal.ZERO)
-                .setCount(0);
     }
 }

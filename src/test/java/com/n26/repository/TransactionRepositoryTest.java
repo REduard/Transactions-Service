@@ -1,80 +1,122 @@
 package com.n26.repository;
 
+import com.n26.controllers.v1.AbstractRestControllerTest;
 import com.n26.domain.Transaction;
+import lombok.Data;
 import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Stream;
 
-import static org.junit.Assert.assertEquals;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 
-public class TransactionRepositoryTest {
+class TransactionRepositoryTest implements AbstractRestControllerTest {
 
     private TransactionRepository transactionRepository;
 
-    private final BigDecimal AMOUNT = BigDecimal.valueOf(1223.45);
-    private final LocalDateTime TIMESTAMP = LocalDateTime.now(Clock.systemUTC());
+
+    final static Transaction testTransaction = new Transaction(BigDecimal.valueOf(1223.45), LocalDateTime.now(Clock.systemUTC()));
+    final static Transaction testTransaction2 = new Transaction(BigDecimal.valueOf(14443.45), LocalDateTime.now(Clock.systemUTC()));
 
     @Before
-    public void setUp() throws Exception {
+    void setUp() throws Exception {
         transactionRepository = new TransactionRepository();
+
     }
 
-    @Test
-    public void save() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("scenarios")
+    void save(ValidationBean validationBean) {
         //given
-        Transaction transaction = new Transaction();
-        transaction.setAmount(AMOUNT);
-        transaction.setTimestamp(TIMESTAMP);
+        transactionRepository = new TransactionRepository();
 
         //when
-        transactionRepository.save(transaction);
+        for (Transaction t : validationBean.getTransactions()) {
+            transactionRepository.save(t);
+        }
 
         //then
-        assertEquals(1, transactionRepository.getLatestTransactions().size());
+        assertThat(transactionRepository.getLatestTransactions().size()).isEqualTo(validationBean.getExpectedTransactionsToPass());
 
     }
 
-    @Test
-    public void getLatestTransactions() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("scenarios")
+    void getLatestTransactions(ValidationBean validationBean) {
         //given
-        Transaction transaction = new Transaction();
-        transaction.setAmount(AMOUNT);
-        transaction.setTimestamp(TIMESTAMP);
-
-        Transaction transaction2 = new Transaction();
-        transaction2.setAmount(AMOUNT);
-        transaction2.setTimestamp(TIMESTAMP.minusSeconds(61));
-
-        transactionRepository.save(transaction);
-        transactionRepository.save(transaction2);
+        transactionRepository = new TransactionRepository();
+        for (Transaction t : validationBean.getTransactions()) {
+            transactionRepository.save(t);
+        }
 
         //when
-        int result = transactionRepository.getLatestTransactions().size();
+        List<Transaction> result = transactionRepository.getLatestTransactions();
 
         //then
-        assertEquals(1, result);
+        assertThat(result.size()).isEqualTo(validationBean.getExpectedTransactionsToPass());
     }
 
-    @Test
-    public void deleteAll() {
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("scenarios")
+    void deleteAll(ValidationBean validationBean) {
         //given
-        Transaction transaction = new Transaction();
-        transaction.setAmount(AMOUNT);
-        transaction.setTimestamp(TIMESTAMP);
-
-        Transaction transaction2 = new Transaction();
-        transaction2.setAmount(AMOUNT);
-        transaction2.setTimestamp(TIMESTAMP.minusSeconds(61));
-        transactionRepository.save(transaction);
-        transactionRepository.save(transaction2);
+        transactionRepository = new TransactionRepository();
+        for (Transaction t : validationBean.getTransactions()) {
+            transactionRepository.save(t);
+        }
 
         //when
         transactionRepository.deleteAll();
 
         //then
-        assertEquals(0, transactionRepository.getLatestTransactions().size());
+        assertThat(transactionRepository.getLatestTransactions().size()).isEqualTo(0);
+    }
+
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("scenarios")
+    void getTransactions(ValidationBean validationBean) {
+        //given
+        transactionRepository = new TransactionRepository();
+        for (Transaction t : validationBean.getTransactions()) {
+            transactionRepository.save(t);
+        }
+
+        //when
+        int transactionsCount=transactionRepository.getTransactions().size();
+
+        //then
+        assertThat(transactionsCount).isEqualTo(validationBean.getExpectedTransactionsToPass());
+
+    }
+
+    static Stream<ValidationBean> scenarios() {
+        return Stream.of(new ValidationBean("Test null transactions", Arrays.asList(null, null), 0),
+                new ValidationBean("Test null params transactions", Arrays.asList(new Transaction(), new Transaction()), 0),
+                new ValidationBean("Test null and valid transaction", Arrays.asList(null, testTransaction), 1),
+                new ValidationBean("Test valid transactions", Arrays.asList(testTransaction, testTransaction2), 2));
+    }
+
+    @Data
+    static class ValidationBean {
+        String testName;
+        List<Transaction> transactions;
+        int expectedTransactionsToPass;
+
+        public ValidationBean(String testName, List<Transaction> transactions, int expectedTransactionsToPass) {
+            this.testName = testName;
+            this.transactions = transactions;
+            this.expectedTransactionsToPass = expectedTransactionsToPass;
+        }
+
+        @Override
+        public String toString() {
+            return testName;
+        }
     }
 }
