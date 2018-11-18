@@ -2,12 +2,15 @@ package com.n26.repository;
 
 import com.n26.domain.Transaction;
 import com.n26.services.exceptions.TransactionsListFullException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static com.n26.util.LoggingUtil.getEnteringMethodMessage;
+import static com.n26.util.LoggingUtil.getExitingMethodMessage;
 import static com.n26.util.TransactionUtil.isTransactionValid;
 import static com.n26.util.TransactionsConstants.SECONDS_IN_THE_PAST;
 import static com.n26.util.TransactionsConstants.TRANSACTION_LIST_IS_FULL_MESSAGE;
@@ -15,6 +18,7 @@ import static com.n26.util.TransactionsConstants.TRANSACTION_LIST_IS_FULL_MESSAG
 /**
  * Class that manage transactions storage
  */
+@Slf4j
 @Component
 public class TransactionRepository {
     private static List<Transaction> transactions;
@@ -31,6 +35,8 @@ public class TransactionRepository {
      * @see #discardOldTransactions()
      */
     public void save(Transaction transaction) {
+        log.debug(getEnteringMethodMessage("TransactionRepository.save", transaction));
+
         discardOldTransactions();
 
         if (transactions.size() > Integer.MAX_VALUE - 100) {
@@ -39,6 +45,7 @@ public class TransactionRepository {
         if (isTransactionValid(transaction)) {
             transactions.add(transaction);
         }
+        log.debug(getExitingMethodMessage("TransactionRepository.save"));
     }
 
     /**
@@ -50,6 +57,7 @@ public class TransactionRepository {
      * @see #discardOldTransactions()
      */
     public List<Transaction> getLatestTransactions() {
+        log.debug(getEnteringMethodMessage("TransactionRepository.getLatestTransactions"));
         discardOldTransactions();
         synchronized (transactions) {
             return new ArrayList<>(transactions);
@@ -60,13 +68,19 @@ public class TransactionRepository {
      * Deletes all transactions
      */
     public void deleteAll() {
+        log.debug(getEnteringMethodMessage("TransactionRepository.deleteAll"));
+
         transactions = Collections.synchronizedList(new LinkedList<>());
+
+        log.debug(getExitingMethodMessage("TransactionRepository.deleteAll"));
     }
 
     /**
      * Discards all transactions that too old
      */
-    public void discardOldTransactions() {
+    private void discardOldTransactions() {
+        log.debug(getEnteringMethodMessage("TransactionRepository.discardOldTransactions"));
+
         Iterator<Transaction> interator = transactions.iterator();
         LocalDateTime timeLimit = LocalDateTime.now(Clock.systemUTC()).minusSeconds(SECONDS_IN_THE_PAST);
 
@@ -76,6 +90,7 @@ public class TransactionRepository {
                 interator.remove();
             }
         }
+        log.debug(getExitingMethodMessage("TransactionRepository.discardOldTransactions"));
     }
 
     /**
@@ -84,6 +99,8 @@ public class TransactionRepository {
      * @return list of all transactions
      */
     public List<Transaction> getTransactions() {
+        log.debug(getEnteringMethodMessage("TransactionRepository.getTransactions"));
+
         return transactions;
     }
 }

@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 
+import static com.n26.util.LoggingUtil.getEnteringMethodMessage;
+
 @Slf4j
 @Api("Controller to manage transaction operations")
 @RestController
@@ -29,7 +31,7 @@ public class TransactionController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void addTransaction(@Valid @RequestBody TransactionDTO transactionDTO) {
-        log.debug("Entering Method: addTransaction with:");
+        log.debug(getEnteringMethodMessage("TransactionController.addTransaction", transactionDTO));
         transactionService.addTransaction(transactionDTO);
     }
 
@@ -37,6 +39,7 @@ public class TransactionController {
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAllTransactions() {
+        log.debug(getEnteringMethodMessage("TransactionController.deleteAllTransactions"));
         transactionService.deleteAllTransactions();
     }
 

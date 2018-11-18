@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.time.Clock;
 import java.time.LocalDateTime;
 
+import static com.n26.util.LoggingUtil.getEnteringMethodMessage;
+import static com.n26.util.LoggingUtil.getExitingMethodMessage;
 import static com.n26.util.TransactionUtil.isTransactionValid;
 import static com.n26.util.TransactionsConstants.*;
 
@@ -32,6 +34,8 @@ public class TransactionServiceImpl implements TransactionService {
 
     @Override
     public void addTransaction(TransactionDTO transactionDTO) {
+        log.debug(getEnteringMethodMessage("TransactionServiceImpl.addTransaction", transactionDTO));
+
         Transaction transaction;
 
         if (transactionDTO == null) {
@@ -52,10 +56,13 @@ public class TransactionServiceImpl implements TransactionService {
             throw new TooOldTransactionException(TRANSACTION_IS_TOO_OLD_MESSAGE);
         }
         transactionRepository.save(transaction);
+        log.debug(getExitingMethodMessage("TransactionServiceImpl.addTransaction"));
     }
 
     @Override
     public void deleteAllTransactions() {
+        log.debug(getEnteringMethodMessage("TransactionServiceImpl.deleteAllTransactions"));
         transactionRepository.deleteAll();
+        log.debug(getExitingMethodMessage("TransactionServiceImpl.deleteAllTransactions"));
     }
 }

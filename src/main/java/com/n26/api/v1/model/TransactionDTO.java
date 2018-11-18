@@ -25,7 +25,7 @@ public class TransactionDTO {
     @NotNull
     private BigDecimal amount;
 
-    @ApiModelProperty(notes = "transaction time in the ISO 8601 format")
+    @ApiModelProperty(notes = "transaction timestamp in the ISO 8601 format")
     @NotNull
     @JsonDeserialize(using = LocalDateTimeDeserializer.class)
     @JsonSerialize(using = LocalDateTimeSerializer.class)
