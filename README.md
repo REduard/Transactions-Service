@@ -1,5 +1,5 @@
 # Transactions-Service
-[![CircleCI](https://circleci.com/gh/REduard/Transactions-Service/tree/master.svg?style=svg)](https://dl.circleci.com/status-badge/redirect/gh/REduard/Transactions-Service/tree/master)
+[![CircleCI](https://dl.circleci.com/status-badge/img/gh/REduard/Transactions-Service/tree/master.svg?style=svg&circle-token=CCIPRJ_XAxe6PK9fsW1bZMTH1GVPc_2e575c0ae4736b9289b32f05ad39999cf0037fc0)](https://dl.circleci.com/status-badge/redirect/gh/REduard/Transactions-Service/tree/master)
 [![CodeFactor](https://www.codefactor.io/repository/github/reduard/transactions-service/badge)](https://www.codefactor.io/repository/github/reduard/transactions-service)
 
 # Functionality
